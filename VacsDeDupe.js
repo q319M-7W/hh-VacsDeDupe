@@ -37,7 +37,9 @@ function main() {
 		...
 	]
 	*/
+
 	console.log(v_list.length)
+
 	//список вакансий с маркерами
 	{
 		function get_data(mark_number, vac_block, type) {
@@ -49,7 +51,9 @@ function main() {
 				// t = t.parentElement
 				t = t.firstChild
 				if (t == null) {
+
 					console.log(vac_block)
+
 				}
 			}
 			let res
@@ -71,8 +75,9 @@ function main() {
 			})
 		}
 	}
-	console.log('list')
-	console.log(list)
+
+	console.log('list'); console.log(list)
+
 	let hideList = [] //вакансии дубли, список для скрытия
 	/*
 	hideList структура
@@ -82,6 +87,7 @@ function main() {
 	]
 	*/
 	let minList = {} //структурированный лист, по компаниям
+	//автоматическая фильтрация вакансий по словам текста в их оригинальном порядке
 	/*
 	minList структура
 	{
@@ -100,7 +106,7 @@ function main() {
 	//перебор списка вакансий
 	for (let i of list) {
 		let vs = i.vac_name.replace('ё', 'е').toLowerCase() //упрощённое имя вакансии
-		// 	console.log(i)
+		// console.log(i)
 		if (minList[i.emp_href] == undefined) {
 			minList[i.emp_href] = {}
 		}
@@ -114,10 +120,10 @@ function main() {
 			hideList.push(i.vac_href)
 		}
 	}
-	console.log('minList')
-	console.log(minList)
-	console.log('hideList')
-	console.log(hideList)
+
+	console.log('minList'); console.log(minList)
+	console.log('hideList'); console.log(hideList)
+
 	let finList = {} //финальный список
 	/*
 	finList структура
@@ -136,8 +142,8 @@ function main() {
 			finList[t['main']] = t['hide'] //список скрытия в главной вакансии
 		}
 	}
-	console.log('finList')
-	console.log(finList)
+
+	console.log('finList'); console.log(finList)
 
 	let vcs_count = {} // блок количества вакансий
 	/*
@@ -146,9 +152,6 @@ function main() {
 		код ссылки главной вакансии: количество скрытых вакансий дублей
 	}
 	*/
-	console.log('Matter')
-	console.log(finList[46600209])
-
 
 	for (const main_vac of Object.keys(finList)) {
 		if (finList[main_vac] != undefined) {
@@ -156,8 +159,8 @@ function main() {
 			vcs_count[main_vac] = n
 		}
 	}
-	console.log('vcs_count')
-	console.log(vcs_count)
+
+	console.log('vcs_count'); console.log(vcs_count)
 
 	//обработка списка на странице
 	for (let v of v_list) {
@@ -172,14 +175,11 @@ function main() {
 			{
 				let labels_block = v.querySelector('.vacancy-serp-item__row_labels')
 				let count_block = doc.createElement('div')
-				count_block.className = 'vacancy-serp-item__label'
-				Object.assign(count_block, { style: `vertical-align: bottom;` })
+				count_block.classList.add('vacancy-serp-item__label', 'vacancy-serp-item__counter')
 				labels_block.prepend(count_block)
 				let c1 = doc.createElement('div')
-				Object.assign(c1, { style: `background: transparent;padding: 0 8px;/*! padding: 2px 8px; *//*! background: greenyellow; *//*! background: darkgray; *//*! background: #fef8e5; */` })
 				count_block.append(c1)
 				let c2 = doc.createElement('div')
-				Object.assign(c2, { style: `font-size: 56px;/*! color: red; *//*! color: #fef8e5; *//*! color: #ebfaeb; */color: #4bb24e;line-height: 1;/*! color: orange; *//*! color: #d92121; *//*! color: #F1C846; */` })
 				c1.append(c2)
 				c2.textContent = `*${vcs_count[vac_href_]}`
 			}
@@ -196,35 +196,56 @@ function main() {
 				nc.innerHTML = ''
 				a.setAttribute("href", `/vacancy/${h}`)
 				nc.append(a)
-				//console.log(f)
-				//console.log(`/vacancy/${h}`)
-				//console.log(nc)
+
+				//console.log(f);console.log(`/vacancy/${h}`);console.log(nc);
+
 				t.after(nc)
 			}
 		}
 	}
 
-	{ //число вакансий после фильтра
-		let styles = doc.querySelector('style')
-		styles.innerHTML +=
-			`:root{}` // --c1: #3c9df2; --c2: #4bb24e;
-		let root_style = doc.querySelector(':root')
-		root_style.style.setProperty('--c1', `#3c9df2`)
-		root_style.style.setProperty('--c2', `#4bb24e`)
+	{
+		doc.querySelector('style').innerHTML +=
+			`
+		/*число вакансий на странице*/
+		:root{
+			--c1: #3c9df2;
+			--c2: #4bb24e;
+		}
+		/*блок счётчика*/
+		.vacancy-serp-item__counter{
+			vertical-align: bottom;
+		}
+		.vacancy-serp-item__counter > div{
+			padding: 0 8px 0 0;
+		}
+		.vacancy-serp-item__counter > div > div{
+			font-size: 32px;
+			color: rgb(75, 178, 78);
+			line-height: 1;
+			border: #ebfaeb 4px dashed;
+			border-radius: 10px;
+		}
+		`
+
+		//число вакансий после фильтра
+
 		let v_string = doc.querySelectorAll('.bloko-header-section-3')[0]
 		// let v_count = Number(v_string.innerText.match(/\d+/)[0])
-		let v_count = v_list.length
-		console.log('v_count')
-		console.log(v_count)
+		let v_count = v_list.length //число вакансий на странице
+
+		console.log('v_count'); console.log(v_count)
+
+		//модификация строки
 		let text_string = [['span', ` // `, "color: #959799;"], ['span', `на странице: `, "color: var(--c1);"],
 		['span', `${v_count} → ${v_count - hideList.length}`,
 			"background-image: linear-gradient(to right, var(--c1), var(--c2)); background-clip: text; color: transparent;"],
 		['span', ` (${hideList.length} ${word(hideList.length)})`, "color: var(--c2);"]]
 		let write_string = (arr) => { //tag_name, text, style
 			arr.forEach(element => {
-				let el = document.createElement(element[0])
-				el.innerText = element[1]
-				el.style = element[2]
+				let el = document.createElement(element[0]) //тэг
+				el.innerText = element[1] //текст
+				el.style = element[2] //стиль
 				v_string.append(el)
 			});
 		}
@@ -237,10 +258,7 @@ function main() {
 		let vac_href = v.querySelector(`[data-qa=${marks[0]}]`).pathname.match(/\d+/)[0]
 		if (hideList.includes(vac_href)) {
 			v.style = "display: none"
-			// console.log(hideList)
 			hideList.splice(hideList.indexOf(vac_href), 1)
-			// console.log(hideList)
-			//continue
 		}
 	}
 
